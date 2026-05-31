@@ -1,0 +1,7 @@
+{
+  "name": "Lights Card",
+  "description": "Configurable Home Assistant Lovelace card for toggling and dimming lights, with two themes, frosted glass, brightness drag, and a full visual editor.",
+  "render_readme": true,
+  "homeassistant": "2024.1.0",
+  "filename": "lights-card.js"
+}
