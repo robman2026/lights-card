@@ -19,7 +19,7 @@
  *  - Full visual editor with ha-entity-picker / ha-icon-picker (loadCardHelpers preload)
  */
 
-const LC_VERSION = "1.1.0";
+const LC_VERSION = "1.2.0";
 
 // ── LitElement bootstrap (same pattern as all robman2026 cards) ──────────────
 const LitElement = Object.getPrototypeOf(customElements.get("ha-panel-lovelace"));
@@ -111,6 +111,16 @@ function lcThemeColors(theme) {
       lightsDot: '#00e5ff',
     };
   }
+  if (theme === 'jha') {
+    // Just HA Dashboard — warm amber on near-black. Hex (not var) because these
+    // strings are also applied via setAttribute on inline SVG strokes.
+    return {
+      lightOn:   '#e0a24e',
+      lightOff:  'rgba(255,255,255,.5)',
+      lightFill: 'rgba(224,162,78,.18)',
+      lightsDot: '#e0a24e',
+    };
+  }
   return {
     lightOn:   '#ffd26d',
     lightOff:  'rgba(255,255,255,.5)',
@@ -120,7 +130,9 @@ function lcThemeColors(theme) {
 }
 
 function lcGetCardCSS(theme) {
-  return theme === 'holo' ? LC_CSS_HOLO : LC_CSS_CLASSIC;
+  if (theme === 'holo') return LC_CSS_HOLO;
+  if (theme === 'jha')  return LC_CSS_JHA;
+  return LC_CSS_CLASSIC;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -239,6 +251,59 @@ const LC_CSS_HOLO = [
 ];
 
 // ════════════════════════════════════════════════════════════════════════════
+// CSS — JUST HA THEME (warm amber, near-black, serif headings)
+// Built on the "Just HA Dashboard" design tokens (--user-* / standard HA vars)
+// with hex fallbacks, so it follows the installed theme AND looks right anywhere.
+// ════════════════════════════════════════════════════════════════════════════
+const LC_CSS_JHA = [
+  "ha-card{background:transparent!important;box-shadow:none!important;border:none!important;border-radius:0!important;}",
+  ":host{display:block;font-family:var(--user-font-ui,'Hanken Grotesk',system-ui,sans-serif);}",
+  "*{box-sizing:border-box;margin:0;padding:0;}",
+  ".lc-card{background:var(--user-glow-amber,radial-gradient(120% 130% at 50% -10%,rgba(224,162,78,.30) 0%,rgba(160,104,43,.10) 38%,rgba(20,20,23,0) 72%)),var(--card-background-color,#141417);border-radius:var(--user-radius-lg,20px);border:1px solid var(--user-line,rgba(255,255,255,.09));box-shadow:0 8px 30px rgba(0,0,0,.45);padding:18px;position:relative;overflow:hidden;}",
+  ".lc-inner{width:100%;position:relative;z-index:1;}",
+  ".lc-header{display:flex;align-items:center;gap:10px;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--user-line-soft,rgba(255,255,255,.06));position:relative;}",
+  ".lc-header.pos-left{justify-content:space-between;}",
+  ".lc-header.pos-center{justify-content:space-between;}",
+  ".lc-header.pos-center .lc-title-wrap{position:absolute;left:50%;transform:translateX(-50%);}",
+  ".lc-title-wrap{display:flex;align-items:center;gap:9px;min-width:0;}",
+  ".lc-title-icon{color:var(--user-amber,#e0a24e);display:flex;align-items:center;flex-shrink:0;}",
+  ".lc-title-icon ha-icon{--mdc-icon-size:22px;}",
+  ".lc-zone-label{display:none;}",
+  ".lc-title{font-family:var(--user-font-display,'Newsreader',Georgia,serif);font-size:20px;font-weight:500;letter-spacing:.01em;color:var(--primary-text-color,#f5f3ef);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
+  ".lc-head-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}",
+  ".lc-datetime{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}",
+  ".lc-date{font-size:12px;font-weight:600;color:var(--user-text-muted,#9b9aa0);letter-spacing:.5px;}",
+  ".lc-time{font-size:11px;font-weight:400;color:var(--user-text-faint,#6c6b72);letter-spacing:1px;font-variant-numeric:tabular-nums;}",
+  ".lc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}",
+  ".lc-dot.online{background:var(--user-green,#79ce8d);box-shadow:0 0 8px rgba(121,206,141,.7);animation:lc-pulse-dot 2s ease-in-out infinite;}",
+  ".lc-dot.offline{background:var(--user-text-faint,#6c6b72);}",
+  "@keyframes lc-pulse-dot{0%,100%{opacity:1;}50%{opacity:.55;}}",
+  ".lc-sec{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--user-text-muted,#9b9aa0);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;}",
+  ".lc-sec-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}",
+  ".lc-lights-grid{display:grid;gap:8px;}",
+  ".lc-light-tile{position:relative;border-radius:var(--user-radius-md,14px);padding:12px 13px;display:flex;align-items:center;gap:11px;cursor:pointer;overflow:hidden;border:1px solid var(--user-line-soft,rgba(255,255,255,.06));transition:border-color .18s,background .18s;min-width:0;-webkit-user-select:none;user-select:none;touch-action:none;}",
+  ".lc-light-tile.lt-off{background:var(--user-ink-750,#18181c);}",
+  ".lc-light-tile.lt-on{background:var(--fill-amber-weak,rgba(224,162,78,.14));border-color:rgba(224,162,78,.28);}",
+  ".lc-light-tile.lt-unavail{opacity:.35;pointer-events:none;}",
+  ".lc-lt-fill{position:absolute;inset:0;pointer-events:none;border-radius:inherit;transition:width .12s,opacity .15s;}",
+  ".lt-off .lc-lt-fill{opacity:0;}",
+  ".lc-lt-icon{width:38px;height:38px;border-radius:50%;background:var(--user-ink-850,#0e0e11);display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:1;}",
+  ".lt-on .lc-lt-icon{background:rgba(224,162,78,.16);}",
+  ".lc-lt-info{flex:1;min-width:0;z-index:1;}",
+  ".lc-lt-name{font-size:13px;font-weight:600;color:var(--user-text-secondary,#d9d7d2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;margin-bottom:3px;}",
+  ".lt-on .lc-lt-name{color:var(--primary-text-color,#f5f3ef);}",
+  ".lc-lt-sub{font-size:11px;color:var(--user-text-faint,#6c6b72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
+  ".lt-on .lc-lt-sub{color:var(--user-amber,#e0a24e);}",
+  ".lc-lt-ago{font-size:10px;color:var(--user-text-faint,#6c6b72);opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}",
+  ".lc-lt-bar-wrap{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--user-line-soft,rgba(255,255,255,.06));z-index:2;}",
+  ".lc-lt-bar{height:3px;border-radius:0;background:var(--user-amber,#e0a24e);transition:width .1s;}",
+  ".lc-inner.bp-xs .lc-lights-grid{grid-template-columns:repeat(2,1fr)!important;}",
+  ".lc-frosted.lc-card{background:var(--lc-fg-bg,rgba(8,8,10,.55))!important;backdrop-filter:blur(var(--lc-fg-blur,22px))!important;-webkit-backdrop-filter:blur(var(--lc-fg-blur,22px))!important;border:1px solid var(--user-line,rgba(255,255,255,.09))!important;}",
+  ".lc-frosted .lc-light-tile.lt-off{background:var(--fill-white-weak,rgba(255,255,255,0.05))!important;}",
+  ".lc-frosted .lc-light-tile.lt-on{background:var(--fill-amber-weak,rgba(224,162,78,.14))!important;border-color:rgba(224,162,78,0.28)!important;}",
+];
+
+// ════════════════════════════════════════════════════════════════════════════
 // Card
 // ════════════════════════════════════════════════════════════════════════════
 class LightsCard extends HTMLElement {
@@ -295,18 +360,22 @@ class LightsCard extends HTMLElement {
     const cfg = this._config;
     if (!cfg.show_header) return '';
     const isHolo = (cfg.theme === 'holo');
+    const isJha  = (cfg.theme === 'jha');
     const iconHTML = cfg.card_icon
       ? '<span class="lc-title-icon"><ha-icon icon="' + cfg.card_icon + '"></ha-icon></span>'
       : '';
 
+    // Just HA uses serif Title Case; classic/holo use tracked uppercase.
+    const rawTitle = String(cfg.card_title || 'Lights');
+    const titleText = isJha ? rawTitle : rawTitle.toUpperCase();
     const titleInner = isHolo
       ? '<div style="display:flex;flex-direction:column;gap:2px;min-width:0;">' +
           '<div class="lc-zone-label">Lighting Control</div>' +
           '<div style="display:flex;align-items:center;gap:6px;">' + iconHTML +
-            '<div class="lc-title">' + String(cfg.card_title || 'Lights').toUpperCase() + '</div>' +
+            '<div class="lc-title">' + titleText + '</div>' +
           '</div>' +
         '</div>'
-      : iconHTML + '<div class="lc-title">' + String(cfg.card_title || 'Lights').toUpperCase() + '</div>';
+      : iconHTML + '<div class="lc-title">' + titleText + '</div>';
 
     const titleHTML = '<div class="lc-title-wrap">' + titleInner + '</div>';
 
@@ -492,7 +561,10 @@ class LightsCard extends HTMLElement {
     if (cfg.frosted_glass) {
       const opacity = Math.min(0.9, Math.max(0.1, parseFloat(cfg.frosted_opacity) || 0.52));
       const blur    = Math.min(40,  Math.max(4,   parseFloat(cfg.frosted_blur)    || 22));
-      this.style.setProperty('--lc-fg-bg',  isHolo ? 'rgba(4,13,26,' + opacity + ')' : 'rgba(8,14,30,' + opacity + ')');
+      const fgBg = isHolo ? 'rgba(4,13,26,' + opacity + ')'
+                 : cfg.theme === 'jha' ? 'rgba(8,8,10,' + opacity + ')'
+                 : 'rgba(8,14,30,' + opacity + ')';
+      this.style.setProperty('--lc-fg-bg', fgBg);
       this.style.setProperty('--lc-fg-blur', blur + 'px');
     }
   }
@@ -728,10 +800,12 @@ class LightsCardEditor extends LitElement {
     const cfg = this._config;
     return html`
       ${this._seg('Theme', cfg.theme || 'classic',
-        [{ val:'classic', label:'🎨 Classic' }, { val:'holo', label:'🔷 Holo Home' }],
+        [{ val:'classic', label:'🎨 Classic' }, { val:'holo', label:'🔷 Holo Home' }, { val:'jha', label:'✨ Just HA' }],
         (v) => this._set('theme', v))}
       <p class="hint">${cfg.theme === 'holo'
         ? '🔷 Holo Home — deep navy grid, cyan scan-lines, monospace HUD typography.'
+        : cfg.theme === 'jha'
+        ? '✨ Just HA — warm amber on near-black, serif headings. Follows the Just HA Dashboard theme tokens (--user-*) and looks right on any dark theme.'
         : '🎨 Classic — the original dark blue gradient design.'}</p>
       ${this._toggle('Frosted Glass Mode', cfg.frosted_glass, (v) => this._set('frosted_glass', v))}
       ${cfg.frosted_glass ? html`
